@@ -1,8 +1,13 @@
-"""版本快照业务规则：状态流转、字段校验与筛选口径都收在这里。"""
+"""版本快照业务规则：状态流转、字段校验与筛选口径都收在这里。
+
+快照清单的“当前生效方案”不单独维护，直接读取湖区分区裁决引擎的同一份结果，
+避免两个入口各算一套导致展示不一致。
+"""
 from __future__ import annotations
 
 from typing import Any
 
+from app.services.policy import effective_decision, list_todos
 from app.store import store
 
 MODULE = "snapshot"
@@ -59,3 +64,22 @@ class SnapshotService:
         entry["pending"] = target != STATUS_ORDER[-1]
         entry["abnormal"] = action in NEGATIVE_ACTIONS
         return entry, f"快照记录已{action}"
+
+    def effective(self) -> dict[str, Any]:
+        """与湖区分区页读同一份生效方案，不做第二次裁决。"""
+        decision = effective_decision()
+        return {
+            "source": "app.services.policy",
+            "scope": decision.get("scope"),
+            "scope_fields": decision.get("scope_fields"),
+            "decision_note": decision.get("decision_note"),
+            "basis": decision.get("basis"),
+            "winner": decision.get("winner"),
+            "rule": decision.get("rule"),
+            "conflict_points": decision.get("conflict_points"),
+            "candidates": decision.get("candidates"),
+            "as_of": decision.get("as_of"),
+        }
+
+    def todos(self) -> list[dict[str, Any]]:
+        return list_todos()

@@ -26,6 +26,8 @@ class EntryPayload(BaseModel):
 
     values: dict[str, Any] = Field(default_factory=dict)
     remark: str | None = None
+    # 前端历史版本直接把动作放在顶层（{"action": "启用方案"}），这里兼容两种写法。
+    action: str | None = None
 
 
 

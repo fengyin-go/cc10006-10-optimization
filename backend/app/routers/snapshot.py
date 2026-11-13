@@ -1,4 +1,8 @@
-"""版本快照接口：维护快照记录，覆盖提交创建、生效快照、标记过期等动作。"""
+"""版本快照接口：维护快照记录，覆盖提交创建、生效快照、标记过期等动作。
+
+生效方案与同步待办直接代理湖区分区裁决引擎，保证两个入口展示同一份结果。
+静态路径必须注册在 /{entry_id} 之前，否则会被当成整数解析。
+"""
 from __future__ import annotations
 
 from typing import Any
@@ -30,6 +34,26 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/effective")
+def effective() -> dict[str, Any]:
+    """快照入口读取的当前生效方案，与湖区分区页完全一致。"""
+    return service.effective()
+
+
+@router.get("/todos")
+def todos() -> dict[str, Any]:
+    """跨模块同步快照待办清单。"""
+    items = service.todos()
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/export")
+def export_entries() -> dict[str, Any]:
+    """导出版本快照清单：返回当前过滤条件下的全量数据。"""
+    items, total = service.list_entries(page=1, size=10000)
+    return {"module": "snapshot", "total": total, "items": items}
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条快照记录明细；不存在时给出可读的错误说明。"""
@@ -51,15 +75,8 @@ def create_entry(payload: EntryPayload) -> ActionResult:
 @router.post("/{entry_id}/actions", response_model=ActionResult)
 def run_action(entry_id: int, payload: EntryPayload) -> ActionResult:
     """对单条快照记录执行提交创建、生效快照、标记过期；不允许的动作会被拦下并说明原因。"""
-    action = str(payload.values.get("action") or "").strip()
+    action = str(payload.values.get("action") or payload.action or "").strip()
     entry, message = service.run_action(entry_id, action)
     if entry is None:
         return ActionResult(ok=False, message=message)
     return ActionResult(ok=True, message=message, entry=entry)
-
-
-@router.get("/export")
-def export_entries() -> dict[str, Any]:
-    """导出版本快照清单：返回当前过滤条件下的全量数据。"""
-    items, total = service.list_entries(page=1, size=10000)
-    return {"module": "snapshot", "total": total, "items": items}

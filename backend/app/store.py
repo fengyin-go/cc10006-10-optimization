@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.policy_seed import AUX_SEED, POLICY_ROWS
 from app.seed import SEED_ROWS
 
 
@@ -14,9 +15,18 @@ class Store:
         self._tables: dict[str, list[dict[str, Any]]] = {
             name: [dict(row) for row in rows] for name, rows in SEED_ROWS.items()
         }
+        # 湖区分区模块改由策略库提供示例数据：同一分区范围三条策略互相冲突，
+        # 页面和接口都从这份数据裁决唯一生效方案。
+        self._tables["lakezone"] = [dict(row) for row in POLICY_ROWS]
+        for name, rows in AUX_SEED.items():
+            self._tables[name] = [dict(row) for row in rows]
+        self._tables.setdefault("lake_policy_revisions", [])
+
+    # 概览只统计业务模块；lake_partitions 等是策略裁决的内部数据表，不当作模块展示。
+    INTERNAL_TABLES = {"lake_partitions", "lake_files", "lake_events", "snapshot_todos", "lake_policy_revisions"}
 
     def module_names(self) -> list[str]:
-        return sorted(self._tables)
+        return sorted(name for name in self._tables if name not in self.INTERNAL_TABLES)
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])

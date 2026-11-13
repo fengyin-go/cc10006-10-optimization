@@ -33,3 +33,22 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .link { border: none; background: none; color: var(--brand); cursor: pointer; padding: 0; }
 .page-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--muted); }
 .error-text { color: #b42318; }
+
+/* 策略裁决面板：冲突、最终方案与重算结果 */
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.panel-title { font-size: 14px; font-weight: 600; margin: 0; }
+.panel-note { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.decision-note { background: #f0f6ff; border-left: 3px solid var(--brand); padding: 8px 10px; font-size: 13px; line-height: 1.7; margin: 8px 0; }
+.winner-badge { display: inline-block; background: #e7f5ee; color: #0f7b45; border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+.loser-badge { display: inline-block; background: #f3f4f6; color: var(--muted); border-radius: 999px; padding: 2px 8px; font-size: 12px; }
+.conflict-list { margin: 4px 0 0; padding-left: 16px; color: #b42318; font-size: 12px; line-height: 1.7; }
+.inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.inline-form label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+.inline-form input { border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; width: 120px; }
+.tag { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px; font-size: 12px; margin-right: 4px; }
+.muted { color: var(--muted); }
+.ok-text { color: #0f7b45; }
+.hit { color: #0f7b45; font-weight: 600; }
+.miss { color: #b42318; }
+.scroll-table { max-height: 320px; overflow: auto; }
